@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>נוסחאות נגזרות וקטוריות</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body {
+            font-family: 'Rubik', sans-serif;
+            background-color: #f8fafc;
+        }
+        
+        /* Custom scrollbar for math containers on mobile */
+        .math-scroll {
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding-bottom: 0.5rem;
+            scrollbar-width: thin;
+        }
+        .math-scroll::-webkit-scrollbar {
+            height: 6px;
+        }
+        .math-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+            border-radius: 4px;
+        }
+        .math-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        .math-scroll::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+
+        .mjx-chtml {
+            margin: 0 !important;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Main Content -->
+    <main class="flex-grow w-full max-w-[100%] mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col md:flex-row gap-6 lg:gap-8">
+        
+        <!-- Navigation / Sidebar -->
+        <aside class="md:w-64 lg:w-72 flex-shrink-0">
+            <nav class="flex md:flex-col gap-3 overflow-x-auto md:overflow-x-visible pb-4 md:pb-0 md:sticky md:top-8" id="tabs-container" aria-label="Tabs">
+                <!-- Tabs will be dynamically inserted here -->
+            </nav>
+        </aside>
+
+        <!-- Formulas Grid -->
+        <div class="flex-grow min-w-0">
+            <div id="formulas-container" class="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6 lg:gap-8">
+                <!-- Formula cards will be dynamically inserted here -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Application Logic -->
+    <script>
+        // --- DATA STRUCTURE ---
+        // בעתיד, תוכל להוסיף כאן עוד מערכות צירים (כמו קרטזיות) ונוסחאות חדשות.
+        const systemsData = [
+            {
+                id: 'spherical',
+                name: 'קואורדינטות ספריות',
+                nameEn: 'Spherical',
+                formulas: [
+                    {
+                        title: 'גרדיאנט',
+                        titleEn: 'Gradient',
+                        latex: String.raw`\nabla T = \frac{\partial T}{\partial r} \hat{\mathbf{r}} + \frac{1}{r} \frac{\partial T}{\partial \theta} \hat{\boldsymbol{\theta}} + \frac{1}{r \sin \theta} \frac{\partial T}{\partial \phi} \hat{\boldsymbol{\phi}}`
+                    },
+                    {
+                        title: 'דיברגנץ',
+                        titleEn: 'Divergence',
+                        latex: String.raw`\begin{aligned} \nabla \cdot \mathbf{v} &= \frac{1}{r^2} \frac{\partial}{\partial r}(r^2 v_r) + \frac{1}{r \sin \theta} \frac{\partial}{\partial \theta}(\sin \theta v_\theta) \\ &\quad + \frac{1}{r \sin \theta} \frac{\partial v_\phi}{\partial \phi} \end{aligned}`
+                    },
+                    {
+                        title: 'רוטור (Curl)',
+                        titleEn: 'Curl',
+                        latex: String.raw`\begin{aligned} \nabla \times \mathbf{v} &= \frac{1}{r \sin \theta} \left[ \frac{\partial}{\partial \theta}(\sin \theta v_\phi) - \frac{\partial v_\theta}{\partial \phi} \right] \hat{\mathbf{r}} \\ &\quad + \frac{1}{r} \left[ \frac{1}{\sin \theta} \frac{\partial v_r}{\partial \phi} - \frac{\partial}{\partial r}(r v_\phi) \right] \hat{\boldsymbol{\theta}} \\ &\quad + \frac{1}{r} \left[ \frac{\partial}{\partial r}(r v_\theta) - \frac{\partial v_r}{\partial \theta} \right] \hat{\boldsymbol{\phi}} \end{aligned}`
+                    },
+                    {
+                        title: 'לפלסיאן',
+                        titleEn: 'Laplacian',
+                        latex: String.raw`\begin{aligned} \nabla^2 T &= \frac{1}{r^2} \frac{\partial}{\partial r} \left( r^2 \frac{\partial T}{\partial r} \right) + \frac{1}{r^2 \sin \theta} \frac{\partial}{\partial \theta} \left( \sin \theta \frac{\partial T}{\partial \theta} \right) \\ &\quad + \frac{1}{r^2 \sin^2 \theta} \frac{\partial^2 T}{\partial \phi^2} \end{aligned}`
+                    }
+                ]
+            },
+            {
+                id: 'cylindrical',
+                name: 'קואורדינטות גליליות',
+                nameEn: 'Cylindrical',
+                formulas: [
+                    {
+                        title: 'גרדיאנט',
+                        titleEn: 'Gradient',
+                        latex: String.raw`\nabla T = \frac{\partial T}{\partial s} \hat{\mathbf{s}} + \frac{1}{s} \frac{\partial T}{\partial \phi} \hat{\boldsymbol{\phi}} + \frac{\partial T}{\partial z} \hat{\mathbf{z}}`
+                    },
+                    {
+                        title: 'דיברגנץ',
+                        titleEn: 'Divergence',
+                        latex: String.raw`\nabla \cdot \mathbf{v} = \frac{1}{s} \frac{\partial}{\partial s}(s v_s) + \frac{1}{s} \frac{\partial v_\phi}{\partial \phi} + \frac{\partial v_z}{\partial z}`
+                    },
+                    {
+                        title: 'רוטור (Curl)',
+                        titleEn: 'Curl',
+                        latex: String.raw`\begin{aligned} \nabla \times \mathbf{v} &= \left( \frac{1}{s} \frac{\partial v_z}{\partial \phi} - \frac{\partial v_\phi}{\partial z} \right) \hat{\mathbf{s}} \\ &\quad + \left( \frac{\partial v_s}{\partial z} - \frac{\partial v_z}{\partial s} \right) \hat{\boldsymbol{\phi}} \\ &\quad + \frac{1}{s} \left[ \frac{\partial}{\partial s}(s v_\phi) - \frac{\partial v_s}{\partial \phi} \right] \hat{\mathbf{z}} \end{aligned}`
+                    },
+                    {
+                        title: 'לפלסיאן',
+                        titleEn: 'Laplacian',
+                        latex: String.raw`\nabla^2 T = \frac{1}{s} \frac{\partial}{\partial s} \left( s \frac{\partial T}{\partial s} \right) + \frac{1}{s^2} \frac{\partial^2 T}{\partial \phi^2} + \frac{\partial^2 T}{\partial z^2}`
+                    }
+                ]
+            },
+            {
+                id: 'coordinates',
+                name: 'יעקוביאן',
+                nameEn: 'Jacobian',
+                formulas: [
+                    {
+                        title: 'פולריות (דו-מימד)',
+                        titleEn: 'Polar',
+                        latex: String.raw`\begin{cases} x = \rho\cos\phi \\ y = \rho\sin\phi \end{cases} \quad J = \rho`
+                    },
+                    {
+                        title: 'גליליות (תלת-מימד)',
+                        titleEn: 'Cylindrical',
+                        latex: String.raw`\begin{cases} x = \rho\cos\phi \\ y = \rho\sin\phi \\ z = z \end{cases} \quad J = \rho`
+                    },
+                    {
+                        title: 'כדוריות (תלת-מימד)',
+                        titleEn: 'Spherical',
+                        latex: String.raw`\begin{cases} x = r\sin\theta\cos\phi \\ y = r\sin\theta\sin\phi \\ z = r\cos\theta \end{cases} \quad J = r^2\sin\theta`
+                    }
+                ]
+            },
+            {
+                id: 'multivariable',
+                name: 'חדו"א רב-משתנית',
+                nameEn: 'Multivariable',
+                formulas: [
+                    {
+                        title: 'דטרמיננטה 2x2',
+                        titleEn: 'Determinant 2x2',
+                        latex: String.raw`\begin{vmatrix} a & b \\ c & d \end{vmatrix} = ad - bc`
+                    },
+                    {
+                        title: 'דטרמיננטה 3x3',
+                        titleEn: 'Determinant 3x3',
+                        latex: String.raw`\begin{vmatrix} a & b & c \\ d & e & f \\ g & h & i \end{vmatrix} = a\begin{vmatrix} e & f \\ h & i \end{vmatrix} - b\begin{vmatrix} d & f \\ g & i \end{vmatrix} + c\begin{vmatrix} d & e \\ g & h \end{vmatrix}`
+                    },
+                    {
+                        title: 'יעקוביאן',
+                        titleEn: 'Jacobian',
+                        latex: String.raw`J\left(\frac{u,v}{x,y}\right) = \begin{vmatrix} \frac{\partial u}{\partial x} & \frac{\partial u}{\partial y} \\ \frac{\partial v}{\partial x} & \frac{\partial v}{\partial y} \end{vmatrix}`
+                    },
+                    {
+                        title: 'נקודות קיצון (2 משתנים)',
+                        titleEn: 'Extrema',
+                        latex: String.raw`\begin{aligned} &\Delta = f_{xx}f_{yy} - f_{xy}^2 \\ &\Delta > 0, f_{xx} > 0 \implies \text{Min} \\ &\Delta > 0, f_{xx} < 0 \implies \text{Max} \\ &\Delta < 0 \implies \text{Saddle} \end{aligned}`
+                    },
+                    {
+                        title: 'טור טיילור',
+                        titleEn: 'Taylor Series',
+                        latex: String.raw`f(x) = \sum_{k=0}^{\infty} \frac{(x-x_0)^k}{k!} \left[ \frac{d^k f(x)}{dx^k} \right]_{x=x_0}`
+                    },
+                    {
+                        title: 'כופלי לגראנז\'',
+                        titleEn: 'Lagrange Multipliers',
+                        description: 'עבור פונקציה $f(x,y,z)$ תחת האילוצים $g_1(x,y,z)=0$ ו-$g_2(x,y,z)=0$ מגדירים את הפונקציה:',
+                        latex: String.raw`G(x,y,z,\lambda_1,\lambda_2) := f(x,y,z) + \lambda_1 g_1(x,y,z) + \lambda_2 g_2(x,y,z)`
+                    }
+                ]
+            },
+            {
+                id: 'derivatives',
+                name: 'כללי גזירה',
+                nameEn: 'Derivatives',
+                formulas: [
+                    {
+                        title: 'פונקציות בסיסיות',
+                        titleEn: 'Basic Functions',
+                        latex: String.raw`\begin{aligned} (1)' &= 0 \\ (x^n)' &= nx^{n-1} \\ (e^x)' &= e^x \\ (a^x)' &= a^x \ln a \\ (\ln x)' &= \frac{1}{x} \\ (\log_a x)' &= \frac{\log_a e}{x} \end{aligned}`
+                    },
+                    {
+                        title: 'פונקציות טריגונומטריות והפוכות',
+                        titleEn: 'Trig & Inverse',
+                        latex: String.raw`\begin{aligned} (\sin x)' &= \cos x \\ (\cos x)' &= -\sin x \\ (\tan x)' &= \frac{1}{\cos^2 x} \\ (\arcsin x)' &= \frac{1}{\sqrt{1-x^2}} \\ (\arccos x)' &= -\frac{1}{\sqrt{1-x^2}} \\ (\arctan x)' &= \frac{1}{1+x^2} \end{aligned}`
+                    },
+                    {
+                        title: 'פונקציות היפרבוליות והפוכות',
+                        titleEn: 'Hyperbolic & Inverse',
+                        latex: String.raw`\begin{aligned} (\sinh x)' &= \cosh x \\ (\cosh x)' &= \sinh x \\ (\tanh x)' &= \frac{1}{\cosh^2 x} \\ (\operatorname{arcsinh} x)' &= \frac{1}{\sqrt{1+x^2}} \\ (\operatorname{arccosh} x)' &= \frac{1}{\sqrt{x^2-1}} \\ (\operatorname{arctanh} x)' &= \frac{1}{1-x^2} \end{aligned}`
+                    },
+                    {
+                        title: 'נגזרת פונקציה סתומה',
+                        titleEn: 'Implicit Derivative',
+                        latex: String.raw`F(x,y) = 0 \implies \frac{dy}{dx} = -\frac{\partial F / \partial x}{\partial F / \partial y}`
+                    },
+                    {
+                        title: 'נגזרת הפוכה',
+                        titleEn: 'Inverse Derivative',
+                        latex: String.raw`\frac{dy}{dx} = \frac{1}{dx/dy}`
+                    },
+                    {
+                        title: 'נגזרת לוגריתמית',
+                        titleEn: 'Logarithmic Derivative',
+                        latex: String.raw`\frac{d}{dx}\ln f(x) = \frac{1}{f(x)}\frac{df(x)}{dx}`
+                    }
+                ]
+            },
+            {
+                id: 'integration',
+                name: 'אינטגרציה ויישומים',
+                nameEn: 'Integration',
+                formulas: [
+                    {
+                        title: 'אינטגרציה בחלקים',
+                        titleEn: 'Integration by Parts',
+                        latex: String.raw`\int f g' dx = fg - \int f' g dx`
+                    },
+                    {
+                        title: 'כלל לייבניץ (גזירה תחת אינטגרל)',
+                        titleEn: 'Leibniz Rule',
+                        latex: String.raw`\frac{d}{d\alpha}\int_{u_1(\alpha)}^{u_2(\alpha)} f(x,\alpha)dx = \int_{u_1(\alpha)}^{u_2(\alpha)} \frac{\partial f}{\partial \alpha}dx + f(u_2,\alpha)\frac{du_2}{d\alpha} - f(u_1,\alpha)\frac{du_1}{d\alpha}`
+                    },
+                    {
+                        title: 'הצבת ויירשטראס',
+                        titleEn: 'Weierstrass Subst.',
+                        latex: String.raw`u = \tan\left(\frac{x}{2}\right) \implies dx = \frac{2du}{1+u^2}, \quad \sin x = \frac{2u}{1+u^2}, \quad \cos x = \frac{1-u^2}{1+u^2}`
+                    },
+                    {
+                        title: 'מרכז מסה',
+                        titleEn: 'Center of Mass',
+                        latex: String.raw`x_{cm} = \frac{\iiint x \rho(x,y,z) dxdydz}{\iiint \rho(x,y,z) dxdydz}`
+                    },
+                    {
+                        title: 'מומנט התמד (סביב ציר z)',
+                        titleEn: 'Moment of Inertia',
+                        latex: String.raw`I_z = \iiint (x^2+y^2) \rho(x,y,z) dxdydz`
+                    },
+                    {
+                        title: 'אורך עקום',
+                        titleEn: 'Arc Length',
+                        latex: String.raw`dl = \sqrt{1 + \left(\frac{dy}{dx}\right)^2} dx \quad \text{(Parametric):} \quad dl = \sqrt{\left(\frac{dx}{du}\right)^2 + \left(\frac{dy}{du}\right)^2} du`
+                    }
+                ]
+            },
+            {
+                id: 'trigonometry',
+                name: 'טריגונומטריה',
+                nameEn: 'Trigonometry',
+                formulas: [
+                    {
+                        title: 'זהות פיתגורס',
+                        titleEn: 'Pythagorean Identity',
+                        latex: String.raw`\cos^2 x + \sin^2 x = 1 \quad , \quad \cosh^2 x - \sinh^2 x = 1`
+                    },
+                    {
+                        title: 'סכום והפרש זוויות',
+                        titleEn: 'Angle Sum & Diff',
+                        latex: String.raw`\begin{aligned} \sin(\alpha \pm \beta) &= \sin\alpha\cos\beta \pm \cos\alpha\sin\beta \\ \cos(\alpha \pm \beta) &= \cos\alpha\cos\beta \mp \sin\alpha\sin\beta \end{aligned}`
+                    },
+                    {
+                        title: 'זווית כפולה',
+                        titleEn: 'Double Angle',
+                        latex: String.raw`\begin{aligned} \sin(2x) &= 2\sin x\cos x \\ \cos(2x) &= \cos^2 x - \sin^2 x \\ &= 2\cos^2 x - 1 = 1 - 2\sin^2 x \end{aligned}`
+                    },
+                    {
+                        title: 'פונקציות היפרבוליות',
+                        titleEn: 'Hyperbolic Func.',
+                        latex: String.raw`\sinh x = \frac{e^x - e^{-x}}{2}, \quad \cosh x = \frac{e^x + e^{-x}}{2}`
+                    }
+                ]
+            },
+            {
+                id: 'complex',
+                name: 'מספרים מרוכבים',
+                nameEn: 'Complex Numbers',
+                formulas: [
+                    {
+                        title: 'נוסחת אוילר והצגה פולרית',
+                        titleEn: 'Euler Formula',
+                        latex: String.raw`z = r(\cos\theta + i\sin\theta) = re^{i\theta}`
+                    },
+                    {
+                        title: 'משפט דה-מואבר',
+                        titleEn: 'De Moivre',
+                        latex: String.raw`z^n = r^n(\cos(n\theta) + i\sin(n\theta)) = r^n e^{in\theta}`
+                    },
+                    {
+                        title: 'שורשי יחידה',
+                        titleEn: 'Roots',
+                        latex: String.raw`z^{\frac{1}{n}} = r^{\frac{1}{n}} \left( \cos\left(\frac{\theta+2\pi k}{n}\right) + i\sin\left(\frac{\theta+2\pi k}{n}\right) \right) \quad k=0,1,\dots,n-1`
+                    },
+                    {
+                        title: 'טריגונומטריה במרוכבים',
+                        titleEn: 'Complex Trig',
+                        latex: String.raw`\cos\theta = \frac{e^{i\theta} + e^{-i\theta}}{2}, \quad \sin\theta = \frac{e^{i\theta} - e^{-i\theta}}{2i}`
+                    },
+                    {
+                        title: 'לוגריתם מרוכב',
+                        titleEn: 'Complex Log',
+                        latex: String.raw`\ln z = \ln r + i(\theta + 2\pi k) \quad , \quad k \in \mathbb{Z}`
+                    },
+                    {
+                        title: 'חזקה מרוכבת',
+                        titleEn: 'Complex Power',
+                        latex: String.raw`z_1^{z_2} = e^{z_2 \ln z_1}`
+                    }
+                ]
+            }
+        ];
+
+        let activeTabId = systemsData[0].id;
+
+        // --- RENDER FUNCTIONS ---
+        
+        function renderTabs() {
+            const tabsContainer = document.getElementById('tabs-container');
+            tabsContainer.innerHTML = '';
+
+            systemsData.forEach(system => {
+                const isActive = system.id === activeTabId;
+                const button = document.createElement('button');
+                
+                // Styling active vs inactive tabs - Updated for sidebar layout
+                button.className = `w-full text-right py-3 px-4 rounded-xl font-medium transition-all duration-200 flex flex-col gap-1 border text-right focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 ${
+                    isActive 
+                        ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/30' 
+                        : 'bg-white text-slate-600 hover:bg-slate-50 border-slate-200 hover:text-slate-900 hover:border-blue-300'
+                }`;
+                
+                button.innerHTML = `
+                    <span class="font-bold text-[15px]">${system.name}</span>
+                    <span class="text-xs font-mono ${isActive ? 'text-blue-200' : 'text-slate-400'}">${system.nameEn}</span>
+                `;
+                
+                button.onclick = () => {
+                    activeTabId = system.id;
+                    renderTabs(); // Re-render tabs to update styles
+                    renderFormulas(); // Render new formulas
+                };
+                
+                tabsContainer.appendChild(button);
+            });
+        }
+
+        function renderFormulas() {
+            const container = document.getElementById('formulas-container');
+            container.innerHTML = '';
+            
+            const activeSystem = systemsData.find(s => s.id === activeTabId);
+            
+            activeSystem.formulas.forEach((formula, index) => {
+                const card = document.createElement('div');
+                // הוקטן הריווח הפנימי (p-4 sm:p-5 במקום p-6) כדי לתת יותר רוחב לנוסחה
+                card.className = 'bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-5 flex flex-col hover:shadow-md transition-shadow relative overflow-hidden group';
+                
+                // Add a subtle accent line on the right
+                const accent = document.createElement('div');
+                accent.className = 'absolute right-0 top-0 bottom-0 w-1 bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity';
+                card.appendChild(accent);
+
+                const header = document.createElement('div');
+                header.className = 'flex justify-between items-center mb-6 border-b border-slate-100 pb-3';
+                header.innerHTML = `
+                    <div class="flex items-baseline gap-2">
+                        <h2 class="text-lg font-bold text-slate-800">${formula.title}</h2>
+                        <span class="text-sm text-slate-400 font-mono">${formula.titleEn}</span>
+                    </div>
+                `;
+
+                card.appendChild(header);
+
+                // Add description if exists
+                if (formula.description) {
+                    const desc = document.createElement('p');
+                    desc.className = 'text-sm text-slate-600 mb-4 px-1 leading-relaxed';
+                    desc.innerHTML = formula.description;
+                    card.appendChild(desc);
+                }
+
+                const mathContainer = document.createElement('div');
+                // הוספת הגנות מפני תרגום אוטומטי של הדפדפן שעלול לעוות את הנוסחאות
+                // הוסר flex items-center justify-center כדי לתקן את באג החיתוך בגלילה
+                mathContainer.className = 'math-scroll flex-grow py-2 notranslate';
+                mathContainer.setAttribute('translate', 'no');
+                
+                // Using display math syntax for MathJax
+                mathContainer.innerHTML = `$$${formula.latex}$$`;
+                
+                card.appendChild(mathContainer);
+                container.appendChild(card);
+            });
+
+            // Initialize Lucide icons for dynamically added elements
+            lucide.createIcons();
+
+            // Tell MathJax to typeset the newly added elements
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                MathJax.typesetPromise([container]).catch(function (err) {
+                    console.error('MathJax error: ', err.message);
+                });
+            }
+        }
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            renderTabs();
+            renderFormulas();
+        });
+
+    </script>
+</body>
+</html>
