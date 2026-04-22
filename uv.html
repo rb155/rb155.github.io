@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מדד קרינה (UV) - נס ציונה</title>
+    
+    <!-- הוספת Tailwind CSS לעיצוב מודרני ורספונסיבי -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- גופן רוביק לעברית יפה -->
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- הוספת אייקונים (Lucide) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body { 
+            font-family: 'Rubik', sans-serif; 
+            background-color: #f8fafc; 
+        }
+        
+        .uv-card { 
+            transition: all 0.3s ease; 
+        }
+        
+        .uv-card:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); 
+        }
+        
+        /* עיצוב לאנימציית הטעינה */
+        .loader {
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased">
+
+<div class="max-w-5xl mx-auto px-4 py-8 md:py-12">
+    
+    <!-- אזור הכותרת העליונה -->
+    <header class="text-center mb-10">
+        <div class="inline-flex items-center justify-center p-4 bg-yellow-100 rounded-full mb-4 text-yellow-500 shadow-sm">
+            <i data-lucide="sun" class="w-10 h-10"></i>
+        </div>
+        <h1 class="text-3xl md:text-5xl font-bold text-slate-900 mb-3 tracking-tight">מדד קרינת שמש (UV)</h1>
+        <h2 class="text-xl md:text-2xl text-slate-600 mb-2">נס ציונה</h2>
+        <p class="text-slate-500 text-md" id="date-subtitle">מתחבר לשירות המטאורולוגי...</p>
+    </header>
+
+    <!-- מצב טעינה -->
+    <div id="loading" class="flex flex-col items-center justify-center py-16">
+        <div class="loader mb-6"></div>
+        <p class="text-slate-500 font-medium text-lg">שולף נתונים עדכניים עבור נס ציונה...</p>
+    </div>
+
+    <!-- הודעת שגיאה (תוצג רק במקרה של חסימת רשת) -->
+    <div id="error-notice" class="hidden bg-red-50 border border-red-200 text-red-700 px-5 py-4 rounded-xl mb-8 flex items-start gap-4 shadow-sm">
+        <i data-lucide="wifi-off" class="w-6 h-6 mt-0.5 flex-shrink-0 text-red-500"></i>
+        <div>
+            <strong class="font-bold text-lg block mb-1">שגיאת רשת בשליפת הנתונים!</strong>
+            <span class="block text-red-600" id="error-text">לא הצלחנו למשוך את הנתונים העדכניים ישירות מהשירות המטאורולוגי. מציג נתוני הדגמה להמחשה בלבד.</span>
+        </div>
+    </div>
+
+    <!-- התוכן המרכזי (מוסתר עד סיום הטעינה) -->
+    <div id="main-content" class="hidden opacity-0 transition-opacity duration-700">
+        
+        <!-- תיבת ההמלצה החכמה שתיווצר דינמית -->
+        <div id="recommendation-box"></div>
+
+        <!-- תצוגת השעות ביום -->
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 md:p-8 mb-8 text-center relative overflow-hidden">
+             <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-green-400 via-yellow-400 to-purple-600"></div>
+             <h2 class="text-2xl font-bold mb-6 text-slate-800">התפלגות הקרינה לאורך היום</h2>
+             
+             <!-- הגריד שמכיל את כרטיסיות השעות -->
+             <div id="uv-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 md:gap-5">
+                 <!-- התוכן יוזרק לכאן על ידי JavaScript -->
+             </div>
+        </div>
+        
+        <!-- מקרא רמות קרינה -->
+        <div class="bg-slate-50 rounded-2xl p-6 text-sm text-slate-600 border border-slate-200">
+            <h4 class="font-bold mb-4 text-slate-800 text-base flex items-center gap-2">
+                <i data-lucide="info" class="w-5 h-5 text-blue-500"></i>
+                מקרא רמות קרינה (לפי ארגון הבריאות העולמי)
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
+                <div class="flex items-center gap-2 bg-white p-2 rounded border border-slate-100"><span class="w-4 h-4 rounded-full bg-green-400 shadow-sm shrink-0"></span> <span><strong>1-2: נמוך</strong> (אין צורך בהגנה)</span></div>
+                <div class="flex items-center gap-2 bg-white p-2 rounded border border-slate-100"><span class="w-4 h-4 rounded-full bg-yellow-400 shadow-sm shrink-0"></span> <span><strong>3-5: בינוני</strong> (מומלצת הגנה)</span></div>
+                <div class="flex items-center gap-2 bg-white p-2 rounded border border-slate-100"><span class="w-4 h-4 rounded-full bg-orange-500 shadow-sm shrink-0"></span> <span><strong>6-7: גבוה</strong> (הגנה נדרשת)</span></div>
+                <div class="flex items-center gap-2 bg-white p-2 rounded border border-slate-100"><span class="w-4 h-4 rounded-full bg-red-500 shadow-sm shrink-0"></span> <span><strong>8-10: גבוה מאוד</strong> (חובה להגן)</span></div>
+                <div class="flex items-center gap-2 bg-white p-2 rounded border border-slate-100"><span class="w-4 h-4 rounded-full bg-purple-600 shadow-sm shrink-0"></span> <span><strong>11+: קיצוני</strong> (הימנעו משהייה בחוץ)</span></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- כותרת תחתונה -->
+    <footer class="mt-12 text-center text-slate-400 text-sm">
+        <p>הנתונים נמשכים משרתי מזג האוויר העולמיים (Open-Meteo) במודל "שמיים בהירים" (Clear Sky) התואם לשירות המטאורולוגי</p>
+    </footer>
+
+</div>
+
+<script>
+    // אתחול האייקונים
+    lucide.createIcons();
+
+    // פונקציות עזר לבחירת צבעים וטקסט לפי רמת ה-UV
+    function getUvColor(uv) {
+        if (uv <= 2) return 'bg-green-400 text-green-900';
+        if (uv <= 5) return 'bg-yellow-400 text-yellow-900';
+        if (uv <= 7) return 'bg-orange-500 text-white';
+        if (uv <= 10) return 'bg-red-500 text-white';
+        return 'bg-purple-600 text-white';
+    }
+
+    function getUvLabel(uv) {
+        if (uv <= 2) return 'נמוך';
+        if (uv <= 5) return 'בינוני';
+        if (uv <= 7) return 'גבוה';
+        if (uv <= 10) return 'גבוה מאוד';
+        return 'קיצוני';
+    }
+
+    // הפונקציה שבונה את ממשק המשתמש (UI) לאחר קבלת הנתונים
+    function renderApp(dateText, hours, uvData) {
+        // הסתרת מסך הטעינה והצגת התוכן
+        document.getElementById('loading').classList.add('hidden');
+        const mainContent = document.getElementById('main-content');
+        mainContent.classList.remove('hidden');
+        
+        // יצירת אפקט הופעה חלקה (Fade In)
+        setTimeout(() => { mainContent.classList.remove('opacity-0'); }, 50);
+
+        // עדכון התאריך
+        document.getElementById('date-subtitle').innerHTML = `נתונים מעודכנים ליום: <strong class="text-slate-700">${dateText}</strong>`;
+
+        // איתור השעות המסוכנות להמלצה
+        let riskyHours = [];
+        for(let i = 0; i < uvData.length; i++) {
+            if(uvData[i] >= 3) {
+                riskyHours.push(hours[i]);
+            }
+        }
+        
+        // יצירת בלוק ההמלצות (קרם הגנה)
+        const recBox = document.getElementById('recommendation-box');
+        if (riskyHours.length > 0) {
+            let start = riskyHours[0];
+            let end = riskyHours[riskyHours.length - 1];
+            recBox.innerHTML = `
+                <div class="bg-orange-50 border border-orange-200 border-r-8 text-orange-800 p-6 rounded-2xl shadow-sm mb-8 flex flex-col md:flex-row gap-5 items-center md:items-start text-center md:text-right">
+                    <div class="bg-white p-4 rounded-full text-orange-500 shadow-sm shrink-0 border border-orange-100">
+                        <i data-lucide="shield-alert" class="w-10 h-10"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-black text-2xl mb-2 text-orange-900">מומלץ לצאת עם קרם הגנה!</h3>
+                        <p class="text-orange-800 text-lg leading-relaxed">מדד הקרינה היום מגיע לרמות המחייבות הגנה. אם אתם יוצאים מחוץ לבית, חובה להקפיד על קרם הגנה, כובע ומשקפי שמש, במיוחד בין השעות 
+                            <strong class="text-orange-900 bg-orange-100 px-2 py-1 rounded mx-1">${start}:00</strong> ל-<strong class="text-orange-900 bg-orange-100 px-2 py-1 rounded mx-1">${end}:00</strong>.
+                        </p>
+                    </div>
+                </div>
+            `;
+        } else {
+            recBox.innerHTML = `
+                <div class="bg-green-50 border border-green-200 border-r-8 text-green-800 p-6 rounded-2xl shadow-sm mb-8 flex flex-col md:flex-row gap-5 items-center md:items-start text-center md:text-right">
+                    <div class="bg-white p-4 rounded-full text-green-500 shadow-sm shrink-0 border border-green-100">
+                        <i data-lucide="shield-check" class="w-10 h-10"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-black text-2xl mb-2 text-green-900">אין חובה בקרם הגנה היום</h3>
+                        <p class="text-green-800 text-lg leading-relaxed">מדד הקרינה צפוי להישאר נמוך (מתחת ל-3) לאורך כל היום. בטוח יחסית לשהות בחוץ, אך תמיד כדאי לשתות מים ולהישמר בשמש.</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // יצירת הגריד של השעות
+        const grid = document.getElementById('uv-grid');
+        let gridHTML = '';
+        const currentHour = new Date().getHours().toString().padStart(2, '0');
+        
+        for(let i = 0; i < uvData.length; i++) {
+            let uv = uvData[i];
+            let colorClass = getUvColor(uv);
+            let label = getUvLabel(uv);
+            
+            // סימון מיוחד לשעה הנוכחית
+            let isCurrent = hours[i] === currentHour;
+            let ringClass = isCurrent ? 'ring-4 ring-blue-300 border-blue-400 scale-105 shadow-xl z-10' : 'border-slate-100 bg-slate-50 hover:bg-white hover:border-slate-300';
+            let currentBadge = isCurrent ? `<div class="absolute -top-3 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">השעה עכשיו</div>` : '';
+
+            gridHTML += `
+                <div class="uv-card rounded-2xl p-5 flex flex-col items-center justify-center text-center border relative ${ringClass}">
+                    ${currentBadge}
+                    <span class="text-slate-500 font-bold mb-3 text-lg">${hours[i]}:00</span>
+                    <div class="${colorClass} w-16 h-16 rounded-full flex items-center justify-center text-3xl font-black mb-3 shadow-md tracking-tighter">
+                        ${uv}
+                    </div>
+                    <span class="text-sm font-bold text-slate-700">${label}</span>
+                </div>
+            `;
+        }
+        grid.innerHTML = gridHTML;
+        
+        // יצירת אייקונים חדשים שנוצרו בקוד בצורה דינמית
+        lucide.createIcons();
+    }
+
+    // הפונקציה השואבת את הנתונים
+    async function fetchData() {
+        try {
+            // קואורדינטות של נס ציונה
+            const lat = 31.93;
+            const lon = 34.80;
+            // שינוי למודל uv_index_clear_sky שזהה לנתוני ההחמרה (ללא עננות) של השירות המטאורולוגי
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=uv_index_clear_sky&timezone=Asia%2FJerusalem`;
+            
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP Error: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            // תאריך של היום
+            const today = new Date();
+            // המרה לפורמט YYYY-MM-DD בהתאם לאזור הזמן של ישראל
+            const todayStr = new Intl.DateTimeFormat('en-CA', {timeZone: 'Asia/Jerusalem', year: 'numeric', month: '2-digit', day: '2-digit'}).format(today);
+            const displayDate = `${today.getDate().toString().padStart(2,'0')}/${(today.getMonth()+1).toString().padStart(2,'0')}`;
+            
+            let hours = [];
+            let uvData = [];
+            
+            // מעבר על הנתונים השעתיים
+            for (let i = 0; i < data.hourly.time.length; i++) {
+                const timeStr = data.hourly.time[i]; // לדוגמה: "2024-04-02T14:00"
+                
+                // מסננים רק את השעות של היום הנוכחי
+                if (timeStr.startsWith(todayStr)) {
+                    const hour = parseInt(timeStr.substring(11, 13));
+                    
+                    // מציגים נתונים רק לשעות היום (הורחב בין 07:00 ל-20:00)
+                    if (hour >= 7 && hour <= 20) {
+                        hours.push(hour.toString().padStart(2, '0'));
+                        // שולפים את נתוני מודל השמיים הבהירים
+                        uvData.push(Math.round(data.hourly.uv_index_clear_sky[i]));
+                    }
+                }
+            }
+
+            if (uvData.length === 0) {
+                throw new Error("לא נמצאו נתונים להיום");
+            }
+
+            // הפעלת התצוגה!
+            renderApp(displayDate, hours, uvData);
+
+        } catch (error) {
+            console.error("שגיאה במשיכת הנתונים:", error);
+            document.getElementById('error-notice').classList.remove('hidden');
+            
+            // מציג את השגיאה הספציפית
+            document.getElementById('error-text').innerText = `${error.message}. מציג נתוני הדגמה להמחשה בלבד.`;
+            
+            // נתוני גיבוי (Fallback Data) התואמים לנתוני השירות המטאורולוגי שסיפקת
+            const today = new Date();
+            const mockDate = `${today.getDate().toString().padStart(2,'0')}/${(today.getMonth()+1).toString().padStart(2,'0')}`;
+            const mockHours = ['07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'];
+            const mockUV = [0, 0, 1, 3, 6, 7, 6, 3, 3, 1, 0, 0, 0, 0]; 
+            
+            renderApp(`היום (${mockDate})`, mockHours, mockUV);
+        }
+    }
+
+    // הפעלת משיכת הנתונים ברגע שהדף מוכן
+    document.addEventListener('DOMContentLoaded', fetchData);
+</script>
+</body>
+</html>
