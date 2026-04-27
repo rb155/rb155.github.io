@@ -3,17 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>נוסחאות נגזרות וקטוריות</title>
+    <title>נוסחאות נגזרות וקטוריות ופיזיקה</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- MathJax Configuration -->
     <script>
         MathJax = {
             tex: {
@@ -27,7 +24,6 @@
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 
-    <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
@@ -61,34 +57,344 @@
         .mjx-chtml {
             margin: 0 !important;
         }
+		mjx-container {
+			direction: ltr !important;
+			unicode-bidi: isolate;
+		}
     </style>
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col">
 
-    <!-- Main Content -->
     <main class="flex-grow w-full max-w-[100%] mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col md:flex-row gap-6 lg:gap-8">
         
-        <!-- Navigation / Sidebar -->
         <aside class="md:w-64 lg:w-72 flex-shrink-0">
-            <nav class="flex md:flex-col gap-3 overflow-x-auto md:overflow-x-visible pb-4 md:pb-0 md:sticky md:top-8" id="tabs-container" aria-label="Tabs">
-                <!-- Tabs will be dynamically inserted here -->
+            <nav class="flex md:flex-col gap-3 overflow-x-auto md:overflow-x-visible pb-4 md:pb-0 md:sticky md:top-8 max-h-[85vh] md:overflow-y-auto custom-scrollbar" id="tabs-container" aria-label="Tabs">
             </nav>
         </aside>
 
-        <!-- Formulas Grid -->
         <div class="flex-grow min-w-0">
             <div id="formulas-container" class="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6 lg:gap-8">
-                <!-- Formula cards will be dynamically inserted here -->
             </div>
         </div>
 
     </main>
 
-    <!-- Application Logic -->
     <script>
         // --- DATA STRUCTURE ---
-        // בעתיד, תוכל להוסיף כאן עוד מערכות צירים (כמו קרטזיות) ונוסחאות חדשות.
         const systemsData = [
+            {
+                id: 'kinematics',
+                name: 'קינמטיקה',
+                nameEn: 'Kinematics',
+                formulas: [
+                    {
+                        title: 'מיקום, מהירות ותאוצה (קרטזי)',
+                        titleEn: 'Cartesian Kinematics',
+                        latex: String.raw`\begin{aligned} \vec{r}(t) &= x(t)\hat{x} + y(t)\hat{y} + z(t)\hat{z} \\ \vec{v}(t) &= \frac{d\vec{r}(t)}{dt} \\ \vec{a}(t) &= \frac{d\vec{v}(t)}{dt} = \frac{d^2\vec{r}(t)}{dt^2} \end{aligned}`
+                    },
+                    {
+                        title: 'גדלים זוויתיים',
+                        titleEn: 'Angular Kinematics',
+                        latex: String.raw`\omega(t) = \frac{d\theta(t)}{dt} \quad , \quad \alpha(t) = \frac{d\omega(t)}{dt} = \frac{d^2\theta(t)}{dt^2}`
+                    },
+                    {
+                        title: 'קואורדינטות פולריות - וקטורי יחידה',
+                        titleEn: 'Polar Unit Vectors',
+                        latex: String.raw`\begin{aligned} \hat{r} &= \hat{x}\cos\theta + \hat{y}\sin\theta \\ \hat{\theta} &= -\hat{x}\sin\theta + \hat{y}\cos\theta \\ \frac{d\hat{r}}{dt} &= \dot{\theta}\hat{\theta} \quad , \quad \frac{d\hat{\theta}}{dt} = -\dot{\theta}\hat{r} \end{aligned}`
+                    },
+                    {
+                        title: 'קואורדינטות פולריות - תנועה',
+                        titleEn: 'Polar Motion',
+                        latex: String.raw`\begin{aligned} \vec{r} &= r\hat{r} \\ \vec{v} &= \dot{r}\hat{r} + r\dot{\theta}\hat{\theta} \\ \vec{a} &= (\ddot{r}-r\dot{\theta}^2)\hat{r} + (2\dot{r}\dot{\theta}+r\ddot{\theta})\hat{\theta} \end{aligned}`
+                    },
+                    {
+                        title: 'תנועה מעגלית אחידה',
+                        titleEn: 'Uniform Circular Motion',
+                        latex: String.raw`\begin{aligned} T &= \frac{1}{f} \quad , \quad \omega = \frac{2\pi}{T} \\ s &= \theta R \quad , \quad v = \omega R \\ a_R &= \frac{v^2}{R} = \omega^2 R \quad , \quad a = \alpha R \end{aligned}`
+                    },
+                    {
+                        title: 'תנועה מעגלית לא אחידה',
+                        titleEn: 'Non-Uniform Circular',
+                        latex: String.raw`\vec{a} = \vec{a}_T + \vec{a}_R \quad , \quad \vec{a}_T = (\vec{a}\cdot\hat{v})\hat{v}`
+                    },
+                    {
+                        title: 'מערכות ייחוס יחסיות ומסתובבות',
+                        titleEn: 'Relative & Rotating Frames',
+                        latex: String.raw`\begin{aligned} \vec{v}_{AB} &= \vec{v}_A - \vec{v}_B \\ \vec{v}_{R} &= \vec{v}_{I} - \vec{\omega} \times \vec{r}_{rot} \\ \vec{a}_{R} &= \vec{a}_{I} - \dot{\vec{\omega}} \times \vec{r}_{rot} - \vec{\omega} \times (\vec{\omega} \times \vec{r}_{rot}) - 2\vec{\omega} \times \vec{v}_{rot} \end{aligned}`
+                    }
+                ]
+            },
+            {
+                id: 'dynamics_energy',
+                name: 'דינמיקה ועבודה',
+                nameEn: 'Dynamics & Work',
+                formulas: [
+                    {
+                        title: 'חוקי ניוטון וכוחות',
+                        titleEn: 'Forces',
+                        latex: String.raw`\begin{aligned} \Sigma \vec{F} &= m\vec{a} \quad , \quad \vec{F} = \frac{d\vec{p}}{dt} \\ f_k &= \mu_k N \quad , \quad f_{s,\max} = \mu_s N \\ \vec{F}_{spring} &= -k\Delta \vec{r} \quad , \quad \vec{F}_{drag} = -b\vec{v} \end{aligned}`
+                    },
+                    {
+                        title: 'אנרגיה ועבודה',
+                        titleEn: 'Energy & Work',
+                        latex: String.raw`\begin{aligned} K &= \frac{1}{2}mv^2 \quad , \quad E = K + U \\ U_g &= mgy \quad , \quad U_{el} = \frac{1}{2}kx^2 \\ W_{A \to B} &= \int_A^B \vec{F} \cdot d\vec{r} = \int_A^B \vec{\tau} \cdot \vec{\omega} dt \\ W_{\Sigma F} &= \Delta K \end{aligned}`
+                    },
+                    {
+                        title: 'כוח משמר והספק',
+                        titleEn: 'Conservative Force & Power',
+                        latex: String.raw`\begin{aligned} \vec{F} &= -\nabla U \implies W_{A \to B} = U_A - U_B \\ U(\vec{r}) &= -\int_{r_A}^r \vec{F}(\vec{r}') \cdot d\vec{r}' + U(r_A) \\ P &= \frac{dW}{dt} = \vec{F} \cdot \vec{v} \end{aligned}`
+                    }
+                ]
+            },
+            {
+                id: 'momentum',
+                name: 'תנע ומרכז מסה',
+                nameEn: 'Momentum & CM',
+                formulas: [
+                    {
+                        title: 'תנע ומתקף',
+                        titleEn: 'Momentum & Impulse',
+                        latex: String.raw`\vec{p} = m\vec{v} \quad , \quad \vec{J}_{impulse} = \int_{t_1}^{t_2} \vec{F} dt = \Delta \vec{p}`
+                    },
+                    {
+                        title: 'מיקום מרכז מסה',
+                        titleEn: 'Center of Mass Position',
+                        latex: String.raw`\vec{R}_{cm} = \frac{\sum m_i \vec{r}_i}{\sum m_i} \quad , \quad X_{cm} = \frac{\int x \rho(x) dx}{\int \rho(x) dx}`
+                    },
+                    {
+                        title: 'תנועת מרכז מסה (מערכת K)',
+                        titleEn: 'CM Motion',
+                        latex: String.raw`\begin{aligned} \vec{P}_{tot} &= M_{tot}\vec{V}_{cm} \\ \Sigma \vec{F}_{ext} &= M_{tot}\vec{A}_{cm} = \lim_{\Delta t \to 0} \frac{\vec{P}(t+\Delta t) - \vec{P}(t)}{\Delta t} \end{aligned}`
+                    },
+                    {
+                        title: 'מעבר למערכת מרכז מסה (K\')',
+                        titleEn: 'CM Reference Frame',
+                        description: 'התנע הכולל במערכת מרכז המסה מתאפס.',
+                        latex: String.raw`\begin{aligned} \vec{r} &= \vec{R}_{cm} + \vec{r}' \\ \vec{v} &= \vec{V}_{cm} + \vec{v}' \\ \vec{a} &= \vec{A}_{cm} + \vec{a}' \\ \vec{P}'_{tot} &= 0 \quad \end{aligned}`
+                    },
+                    {
+                        title: 'מסה משתנה (נוסחת הרקטה)',
+                        titleEn: 'Variable Mass',
+                        latex: String.raw`\sum \vec{F}_{ext} = \frac{d\vec{p}}{dt} = M(t)\dot{\vec{v}} - \vec{u}\dot{M}`
+                    }
+                ]
+            },
+            {
+                id: 'rigid_body',
+                name: 'גוף קשיח',
+                nameEn: 'Rigid Body',
+                formulas: [
+                    {
+                        title: 'מומנט כוח (Torque)',
+                        titleEn: 'Torque',
+                        latex: String.raw`\vec{\tau} = \vec{r} \times \vec{F} \quad , \quad \Sigma \vec{\tau} = I\vec{\alpha}`
+                    },
+                    {
+                        title: 'תנע זוויתי (J או L)',
+                        titleEn: 'Angular Momentum',
+                        latex: String.raw`\begin{aligned} \vec{J}_{point} &= \vec{r} \times \vec{p} \\ \vec{J}_{rigid} &= I\vec{\omega} \\ \vec{J}_{total} &= \vec{J}_{cm} + \vec{R}_{cm} \times \vec{P} \\ \vec{\tau} &= \frac{d\vec{J}}{dt} \end{aligned}`
+                    },
+                    {
+                        title: 'אנרגיה קינטית וגלגול',
+                        titleEn: 'Energy & Rolling',
+                        latex: String.raw`E_k = \frac{1}{2}MV_{cm}^2 + \frac{1}{2}I\omega^2 \quad , \quad |\vec{v}| = |\vec{\omega}|R`
+                    },
+                    {
+                        title: 'מומנט התמד ומשפט שטיינר',
+                        titleEn: 'Moment of Inertia',
+                        latex: String.raw`I = \sum m_i r_i^2 \quad , \quad I = I_{cm} + Mh^2`
+                    },
+                    {
+                        title: 'מומנטי התמד רציפים',
+                        titleEn: 'Moments of Inertia Table',
+                        latex: String.raw`\begin{aligned} I_{\text{box/rectangle}} &= \frac{M(a^2+b^2)}{12} \\ I_{\text{rod}} &= \frac{ML^2}{12} \\ I_{\text{disk}} &= \frac{MR^2}{2} \text{ or } \frac{MR^2}{4} \text{ (z axis dependent)} \\ I_{\text{thin\_ring}} &= MR^2 \\ I_{\text{thick\_ring}} &= \frac{M}{2}(R_1^2 + R_2^2) \\ I_{\text{sphere}} &= \frac{2}{5}MR^2 \end{aligned}`
+                    }
+                ]
+            },
+			{
+                id: 'harmonic_oscillator',
+                name: 'מתנד הרמוני',
+                nameEn: 'Harmonic Oscillator',
+                formulas: [
+                    {
+                        title: 'ללא ריסון - משוואת התנועה',
+                        titleEn: 'Undamped - Eq',
+                        latex: String.raw`\ddot{x} + \omega^2 x = 0`
+                    },
+                    {
+                        title: 'ללא ריסון - צורות שקולות לפתרון',
+                        titleEn: 'Undamped - Solutions',
+                        latex: String.raw`\begin{aligned} x(t) &= A \sin(\omega t + \phi) \\ x(t) &= A \cos(\omega t + \phi) \\ x(t) &= A \sin(\omega t) + B \cos(\omega t) \end{aligned}`
+                    },
+                    {
+                        title: 'עם ריסון - משוואת התנועה',
+                        titleEn: 'Damped - Eq',
+                        description: String.raw`מגדירים מקדם ריסון $\beta = \frac{1}{2\tau}$. מצב המערכת נקבע לפי היחס בין התדירות הטבעית $\omega_0$ ל-$\beta$.`,
+                        latex: String.raw`\ddot{x} + \frac{1}{\tau}\dot{x} + \omega_0^2 x = 0`
+                    },
+                    {
+                        title: 'עם ריסון - תת ריסון (Underdamped)',
+                        titleEn: 'Underdamped',
+                        description: String.raw`מתקבל כאשר $\omega_0 > \frac{1}{2\tau}$ (או $\omega_0 > \beta$). נגדיר תדירות מרוסנת $\omega_d = \sqrt{\omega_0^2 - \beta^2}$:`,
+                        latex: String.raw`x(t) = A e^{-\beta t} \sin(\omega_d t + \phi)`
+                    },
+                    {
+                        title: 'עם ריסון - ריסון קריטי (Critically Damped)',
+                        titleEn: 'Critically Damped',
+                        description: String.raw`מתקבל כאשר $\omega_0 = \frac{1}{2\tau}$ (או $\omega_0 = \beta$):`,
+                        latex: String.raw`x(t) = (A_1 + A_2 t) e^{-\beta t}`
+                    },
+                    {
+                        title: 'עם ריסון - ריסון יתר (Overdamped)',
+                        titleEn: 'Overdamped',
+                        description: String.raw`מתקבל כאשר $\omega_0 < \frac{1}{2\tau}$ (או $\omega_0 < \beta$). נגדיר $\tilde{\omega} = \sqrt{\beta^2 - \omega_0^2}$:`,
+                        latex: String.raw`x(t) = (A_1 e^{\tilde{\omega} t} + A_2 e^{-\tilde{\omega} t}) e^{-\beta t}`
+                    },
+                    {
+                        title: 'ריסון ואילוץ - משוואת התנועה',
+                        titleEn: 'Damped & Driven - Eq',
+                        latex: String.raw`\ddot{x} + \frac{1}{\tau}\dot{x} + \omega_0^2 x = \frac{f}{m}\cos(\omega_F t)`
+                    },
+                    {
+                        title: 'ריסון ואילוץ - פתרון פרטי',
+                        titleEn: 'Driven - Particular Solution',
+                        latex: String.raw`x(t) = \frac{f/m}{\sqrt{(\omega_0^2 - \omega_F^2)^2 + (\frac{\omega_F}{\tau})^2}} \cos(\omega_F t + \phi)`
+                    },
+                    {
+                        title: 'ריסון ואילוץ - פאזה',
+                        titleEn: 'Driven - Phase',
+                        latex: String.raw`\phi = -\cos^{-1}\left[ \frac{\omega_0^2 - \omega_F^2}{\sqrt{(\omega_0^2 - \omega_F^2)^2 + (\frac{\omega_F}{\tau})^2}} \right]`
+                    }
+                ]
+            },
+            {
+                id: 'central_force',
+                name: 'כוח מרכזי',
+                nameEn: 'Central Force',
+                formulas: [
+                    {
+                        title: 'כוח מרכזי וכבידה',
+                        titleEn: 'Central Force Definition',
+                        description: String.raw`משוואת כוח מרכזי כללי, כאשר $C = -GM_1M_2$ מתאר כוח משיכה כבידתי:`,
+                        latex: String.raw`\vec{F} = \frac{C}{r^2}\hat{r}`
+                    },
+                    {
+                        title: 'מסה מצומצמת',
+                        titleEn: 'Reduced Mass',
+                        latex: String.raw`\mu = \frac{m_1 m_2}{m_1 + m_2} \quad , \quad \mu \ddot{\vec{r}} = f(r)\hat{r}`
+                    },
+                    {
+                        title: 'חוקי קפלר',
+                        titleEn: "Kepler's Laws",
+                        description: String.raw`1. כוכבי לכת נעים באליפסה סביב השמש (הנמצאת במוקד).<br>
+                                      2. וקטור הרדיוס מכסה שטחים שווים בזמנים שווים ($L=\text{const}$).<br>
+                                      3. יחס המחזורים ורדיוסי המסלול:`,
+                        latex: String.raw`\frac{GM}{4\pi^2} = \frac{a_1^3}{T_1^2} = \frac{a_2^3}{T_2^2}`
+                    },
+                    {
+                        title: 'אנרגיה ופוטנציאל אפקטיבי',
+                        titleEn: 'Energy & Effective Potential',
+                        latex: String.raw`\begin{aligned} E_{tot} &= \frac{1}{2}\mu\dot{r}^2 + \frac{J^2}{2\mu r^2} + U(r) \\ U_{eff}(r) &= \frac{J^2}{2\mu r^2} - G\frac{m_1 m_2}{r} \end{aligned}`
+                    },
+                    {
+                        title: 'נקודות קיצון בפוטנציאל',
+                        titleEn: 'Potential Extrema',
+                        latex: String.raw`r_a = \frac{J^2}{\mu G m_1 m_2} \quad , \quad U_{\min} = -\frac{\mu (Gm_1 m_2)^2}{2J^2}`
+                    },
+                    {
+                        title: 'משוואת המסלול (חתך קוני)',
+                        titleEn: 'Orbit Equation',
+                        latex: String.raw`r(\theta) = \frac{s}{1 - e \cos\theta}`
+                    },
+                    {
+                        title: 'פרמטרי המסלול: רוחב (s) ואקסצנטריות (e)',
+                        titleEn: 'Orbit Parameters',
+                        description: String.raw`נוסחאות לחישוב רוחב המסלול (עבור מסה $M$) והאקסצנטריות:`,
+                        latex: String.raw`\begin{aligned} s &= a(1-e^2) = \frac{J^2}{-CM} \\ e &= \frac{r_{\max}-r_{\min}}{r_{\max}+r_{\min}} = \sqrt{1 + \frac{2 E_{tot} J^2}{C^2 \mu}} \end{aligned}`
+                    },
+                    {
+                        title: 'פרמטרי אליפסה ואנרגיה',
+                        titleEn: 'Ellipse Parameters',
+                        latex: String.raw`b = a\sqrt{1-e^2} \quad , \quad E_{\text{ellipse}} = -\frac{|C|}{2a}`
+                    },
+                    {
+                        title: 'סוגי מסלולים (לפי e)',
+                        titleEn: 'Orbit Types',
+                        description: String.raw`מיון צורות המסלול ותנאי האנרגיה בהתאם לאקסצנטריות:<br>
+                                      • $e > 1 \implies$ היפרבולה (לא קשור, $E_{tot} > 0$)<br>
+                                      • $e = 1 \implies$ פרבולה ($E_{tot} = 0$)<br>
+                                      • $0 < e < 1 \implies$ אליפסה (מסלול קשור, $E_{tot} < 0$)<br>
+                                      • $e = 0 \implies$ מעגל (מקרה פרטי של אליפסה)`,
+                        latex: String.raw`\begin{aligned} e &> 1 \\ e &= 1 \\ 0 \le e &< 1 \end{aligned}`
+                    },
+                    {
+                        title: 'אינטגרלים של מסלול וזמן',
+                        titleEn: 'Time and Path Integrals',
+                        latex: String.raw`\begin{aligned} t - t_0 &= \int_{r_0}^r \frac{dr}{\sqrt{\frac{2}{\mu}(E_{tot} - U_{eff}(r))}} \\ \theta(r) - \theta_0 &= J \int_{r_0}^r \frac{dr'}{r'^2 \sqrt{2\mu(E_{tot} - U_{eff}(r'))}} \end{aligned}`
+                    }
+                ]
+            },
+            {
+                id: 'physics_math',
+                name: 'השלמות מתמטיות לפיזיקה',
+                nameEn: 'Physics Math',
+                formulas: [
+                    {
+                        title: 'יציבות שיווי משקל',
+                        titleEn: 'Equilibrium Stability',
+                        description: String.raw`תנאים לסיווג נקודות שיווי משקל בפוטנציאל $U(x)$:<br>
+                                      • $U'(x) = 0 \implies$ נקודת שיווי משקל.<br>
+                                      • $U''(x) > 0 \implies$ יציב (מינימום פוטנציאל).<br>
+                                      • $U''(x) < 0 \implies$ רופף/לא יציב (מקסימום פוטנציאל).`,
+                        latex: String.raw`\begin{aligned} U'(x) &= 0 \\ U''(x) &> 0 \\ U''(x) &< 0 \end{aligned}`
+                    },
+                    {
+                        title: 'וקטור יחידה והיטלים',
+                        titleEn: 'Unit Vector & Projections',
+                        description: String.raw`הגדרת וקטור יחידה $\hat{a}$, ונוסחה למציאת היטל של וקטור $\vec{a}$ על כיוון וקטור $\vec{b}$:`,
+                        latex: String.raw`\hat{a} = \frac{\vec{a}}{|\vec{a}|} \quad , \quad \text{proj}_{\vec{b}}\vec{a} = \left( \frac{\vec{a} \cdot \vec{b}}{|\vec{b}|^2} \right)\vec{b}`
+                    },
+                    {
+                        title: 'שטחים ונפחים',
+                        titleEn: 'Areas & Volumes',
+                        description: String.raw`מעגל (שטח $A$ והיקף $P$), כדור (נפח $V$ ושטח פנים $S$), גליל (נפח $V$ ושטח מעטפת $S$):`,
+                        latex: String.raw`\begin{aligned} A_{circ} &= \pi r^2 \quad , \quad P = 2\pi r \\ V_{sph} &= \frac{4}{3}\pi r^3 \quad , \quad S_{sph} = 4\pi r^2 \\ V_{cyl} &= \pi r^2 h \quad , \quad S_{cyl} = 2\pi r h \end{aligned}`
+                    },
+                    {
+                        title: 'דיפרנציאלי אורך (dl) ונפח (dV)',
+                        titleEn: 'Differentials (dl, dV)',
+                        description: String.raw`רכיבי אורך ונפח דיפרנציאליים עבור שלוש מערכות הצירים המרכזיות (קרטזית, גלילית, כדורית):`,
+                        latex: String.raw`\begin{aligned} dl_{cart} &= dx\hat{x} + dy\hat{y} + dz\hat{z} \\ dV_{cart} &= dx dy dz \\ dl_{cyl} &= dr\hat{r} + r d\theta\hat{\theta} + dz\hat{z} \\ dV_{cyl} &= r dr d\theta dz \\ dl_{sph} &= dr\hat{r} + r d\theta\hat{\theta} + r\sin\theta d\varphi\hat{\varphi} \\ dV_{sph} &= r^2 \sin\theta dr d\theta d\varphi \end{aligned}`
+                    },
+                    {
+                        title: 'אינטגרל זווית מרחבית של כדור',
+                        titleEn: 'Solid Angle Integral',
+                        latex: String.raw`\int_0^{2\pi} \int_0^\pi \sin\varphi \, d\varphi d\theta = 4\pi`
+                    }
+                ]
+            },
+            {
+                id: 'vectors',
+                name: 'וקטורים וגיאומטריה',
+                nameEn: 'Vectors & Geometry',
+                formulas: [
+                    {
+                        title: 'מכפלה סקלרית',
+                        titleEn: 'Dot Product',
+                        latex: String.raw`\vec{a} \cdot \vec{b} = |\vec{a}||\vec{b}|\cos\alpha = a_x b_x + a_y b_y + a_z b_z`
+                    },
+                    {
+                        title: 'מכפלה וקטורית',
+                        titleEn: 'Cross Product',
+                        latex: String.raw`\begin{aligned} |\vec{a} \times \vec{b}| &= |\vec{a}||\vec{b}|\sin\alpha \\ \vec{a} \times \vec{b} &= (a_y b_z - a_z b_y)\hat{x} \\ &\quad+ (a_z b_x - a_x b_z)\hat{y} \\ &\quad+ (a_x b_y - a_y b_x)\hat{z} \end{aligned}`
+                    },
+                    {
+                        title: 'שטחים ונפחים',
+                        titleEn: 'Areas & Volumes',
+                        latex: String.raw`\begin{aligned} V_{\text{sphere}} &= \frac{4}{3}\pi r^3 \quad , \quad S_{\text{sphere}} = 4\pi r^2 \\ V_{\text{cylinder}} &= \pi r^2 h \quad , \quad S_{\text{cylinder}} = 2\pi r h \end{aligned}`
+                    }
+                ]
+            },
             {
                 id: 'spherical',
                 name: 'קואורדינטות ספריות',
@@ -261,16 +567,6 @@
                         latex: String.raw`u = \tan\left(\frac{x}{2}\right) \implies dx = \frac{2du}{1+u^2}, \quad \sin x = \frac{2u}{1+u^2}, \quad \cos x = \frac{1-u^2}{1+u^2}`
                     },
                     {
-                        title: 'מרכז מסה',
-                        titleEn: 'Center of Mass',
-                        latex: String.raw`x_{cm} = \frac{\iiint x \rho(x,y,z) dxdydz}{\iiint \rho(x,y,z) dxdydz}`
-                    },
-                    {
-                        title: 'מומנט התמד (סביב ציר z)',
-                        titleEn: 'Moment of Inertia',
-                        latex: String.raw`I_z = \iiint (x^2+y^2) \rho(x,y,z) dxdydz`
-                    },
-                    {
                         title: 'אורך עקום',
                         titleEn: 'Arc Length',
                         latex: String.raw`dl = \sqrt{1 + \left(\frac{dy}{dx}\right)^2} dx \quad \text{(Parametric):} \quad dl = \sqrt{\left(\frac{dx}{du}\right)^2 + \left(\frac{dy}{du}\right)^2} du`
@@ -355,7 +651,7 @@
                 const isActive = system.id === activeTabId;
                 const button = document.createElement('button');
                 
-                // Styling active vs inactive tabs - Updated for sidebar layout
+                // Styling active vs inactive tabs
                 button.className = `w-full text-right py-3 px-4 rounded-xl font-medium transition-all duration-200 flex flex-col gap-1 border text-right focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 ${
                     isActive 
                         ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/30' 
@@ -369,8 +665,8 @@
                 
                 button.onclick = () => {
                     activeTabId = system.id;
-                    renderTabs(); // Re-render tabs to update styles
-                    renderFormulas(); // Render new formulas
+                    renderTabs(); 
+                    renderFormulas(); 
                 };
                 
                 tabsContainer.appendChild(button);
@@ -385,7 +681,6 @@
             
             activeSystem.formulas.forEach((formula, index) => {
                 const card = document.createElement('div');
-                // הוקטן הריווח הפנימי (p-4 sm:p-5 במקום p-6) כדי לתת יותר רוחב לנוסחה
                 card.className = 'bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-5 flex flex-col hover:shadow-md transition-shadow relative overflow-hidden group';
                 
                 // Add a subtle accent line on the right
@@ -413,8 +708,6 @@
                 }
 
                 const mathContainer = document.createElement('div');
-                // הוספת הגנות מפני תרגום אוטומטי של הדפדפן שעלול לעוות את הנוסחאות
-                // הוסר flex items-center justify-center כדי לתקן את באג החיתוך בגלילה
                 mathContainer.className = 'math-scroll flex-grow py-2 notranslate';
                 mathContainer.setAttribute('translate', 'no');
                 
@@ -425,7 +718,7 @@
                 container.appendChild(card);
             });
 
-            // Initialize Lucide icons for dynamically added elements
+            // Initialize Lucide icons
             lucide.createIcons();
 
             // Tell MathJax to typeset the newly added elements
