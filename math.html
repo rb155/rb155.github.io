@@ -207,7 +207,7 @@
                     {
                         title: 'מומנטי התמד רציפים',
                         titleEn: 'Moments of Inertia Table',
-                        latex: String.raw`\begin{aligned} I_{\text{box/rectangle}} &= \frac{M(a^2+b^2)}{12} \\ I_{\text{rod}} &= \frac{ML^2}{12} \\ I_{\text{disk}} &= \frac{MR^2}{2} \text{ or } \frac{MR^2}{4} \text{ (z axis dependent)} \\ I_{\text{thin\_ring}} &= MR^2 \\ I_{\text{thick\_ring}} &= \frac{M}{2}(R_1^2 + R_2^2) \\ I_{\text{sphere}} &= \frac{2}{5}MR^2 \end{aligned}`
+                        latex: String.raw`\begin{aligned} I_{\text{box/rectangle}} &= \frac{M(a^2+b^2)}{12} \\ I_{\text{rod}} &= \frac{ML^2}{12} \\ I_{\text{disk}} &= \frac{MR^2}{2} \text; \text{ or } \frac{MR^2}{4} \text{ (z axis dependent)} \\ I_{\text{thin\_ring}} &= MR^2 \\ I_{\text{thick\_ring}} &= \frac{M}{2}(R_1^2 + R_2^2) \\ I_{\text{sphere}} &= \frac{2}{5}MR^2 \end{aligned}`
                     }
                 ]
             },
@@ -636,8 +636,7 @@
                         latex: String.raw`z_1^{z_2} = e^{z_2 \ln z_1}`
                     }
                 ]
-            }
-,
+            },
             {
                 id: 'vector_identities',
                 name: 'זהויות וקטוריות',
@@ -651,7 +650,8 @@
                     {
                         title: 'זהויות מכפלה וקטורית',
                         titleEn: 'Vector Product Rules',
-                        latex: String.raw`\begin{aligned} \vec{\nabla}\cdot(\vec{F}\times\vec{G}) &= (\vec{\nabla}\times\vec{F})\cdot\vec{G} - \vec{F}\cdot(\vec{\nabla}\times\vec{G}) \\ \vec{\nabla}\times(\vec{F}\times\vec{G}) &= \vec{F}(\vec{\nabla}\cdot\vec{G}) - \vec{G}(\vec{\nabla}\cdot\vec{F}) + (\vec{G}\cdot\vec{\nabla})\vec{F} - (\vec{F}\cdot\vec{\nabla})\vec{G} \\ \vec{\nabla}(\vec{F}\cdot\vec{G}) &= \vec{F}\times(\vec{\nabla}\times\vec{G}) + (\vec{F}\cdot\vec{\nabla})\vec{G} + \vec{G}\times(\vec{\nabla}\times\vec{F}) + (\vec{G}\cdot\vec{\nabla})\vec{F} \end{aligned}`
+                        description: 'זהויות כפל של אופרטור נבלא עם מכפלות שדות (פוצלו לשורות כדי למנוע חריגה מהמסך):',
+                        latex: String.raw`\begin{aligned} \vec{\nabla}\cdot(\vec{F}\times\vec{G}) &= (\vec{\nabla}\times\vec{F})\cdot\vec{G} - \vec{F}\cdot(\vec{\nabla}\times\vec{G}) \\\\ \vec{\nabla}\times(\vec{F}\times\vec{G}) &= \vec{F}(\vec{\nabla}\cdot\vec{G}) - \vec{G}(\vec{\nabla}\cdot\vec{F}) \\ &\quad + (\vec{G}\cdot\vec{\nabla})\vec{F} - (\vec{F}\cdot\vec{\nabla})\vec{G} \\\\ \vec{\nabla}(\vec{F}\cdot\vec{G}) &= \vec{F}\times(\vec{\nabla}\times\vec{G}) + (\vec{F}\cdot\vec{\nabla})\vec{G} \\ &\quad + \vec{G}\times(\vec{\nabla}\times\vec{F}) + (\vec{G}\cdot\vec{\nabla})\vec{F} \end{aligned}`
                     },
                     {
                         title: 'נגזרות מסדר שני',
@@ -663,6 +663,12 @@
                         titleEn: 'Radial Functions',
                         description: 'שימושי מאוד לחישובים בכוח מרכזי ($r$ רדיוס כדורי, $\rho$ רדיוס גלילי):',
                         latex: String.raw`\begin{aligned} \vec{\nabla}f(r) &= f'(r)\hat{r} \\ \vec{\nabla}\cdot\vec{r} &= 3 \quad , \quad \vec{\nabla}\times\vec{r} = 0 \\ \vec{\nabla}\rho &= \hat{\rho} \quad (\rho = \sqrt{x^2+y^2}) \\ \vec{\nabla}f(\rho) &= f'(\rho)\hat{\rho} \\ \vec{\nabla}\cdot\hat{\varphi} &= 0 \quad , \quad \vec{\nabla}\times\hat{\varphi} = \frac{1}{\rho}\hat{z} \end{aligned}`
+                    },
+                    {
+                        title: 'שדות תלויים במרחק (כוח מרכזי ותיל)',
+                        titleEn: 'Radial & Azimuthal Fields',
+                        description: 'דיברגנץ ורוטור של שדות סימטריים מתוך סיכומי ההרצאה:',
+                        latex: String.raw`\begin{aligned} \vec{\nabla}\cdot(f(r)\vec{r}) &= 3f(r) + r f'(r) \quad , \quad \vec{\nabla}\times(f(r)\vec{r}) = 0 \\ \vec{\nabla}\cdot(f(\rho)\hat{\varphi}) &= 0 \quad , \quad \vec{\nabla}\times(f(\rho)\hat{\varphi}) = \left(\frac{f(\rho)}{\rho} + f'(\rho)\right)\hat{z} \end{aligned}`
                     }
                 ]
             },
@@ -675,7 +681,7 @@
                         title: 'משפט גאוס (דיברגנץ)',
                         titleEn: 'Divergence Theorem',
                         description: 'ממיר אינטגרל נפחי של דיברגנץ לאינטגרל משטחי (שטף) על השפה:',
-                        latex: String.raw`\iint_V (\vec{\nabla}\cdot\vec{F})dV = \iint_{\partial V} \vec{F}\cdot d\vec{S} = \Phi`
+                        latex: String.raw`\iiint_V (\vec{\nabla}\cdot\vec{F})dV = \iint_{\partial V} \vec{F}\cdot d\vec{S} = \Phi`
                     },
                     {
                         title: 'משפט סטוקס',
@@ -686,23 +692,23 @@
                     {
                         title: 'משוואת הרציפות',
                         titleEn: 'Continuity Equation',
-                        description: 'מתארת שימור מסה/מטען. $\rho_m$ היא הצפיפות ו-$\vec{u}$ הוא שדה המהירות. עבור שדה סטציונרי $\vec{\nabla}\cdot\vec{u} = 0$.',
+                        description: 'מתארת שימור מסה/מטען. rho_m היא הצפיפות ו-u הוא שדה המהירות. עבור שדה סטציונרי $\vec{\nabla}\cdot\vec{u} = 0$.',
                         latex: String.raw`\partial_t \rho_m + \vec{\nabla}\cdot(\rho_m\vec{u}) = 0`
                     },
                     {
                         title: 'אינטגרציה בחלקים (תלת מימד)',
                         titleEn: '3D Integration by Parts',
-                        latex: String.raw`\iint_V (\vec{\nabla}\phi\cdot\vec{A})dV = \iint_{\partial V} \phi\vec{A}\cdot d\vec{S} - \iint_V \phi(\vec{\nabla}\cdot\vec{A})dV`
+                        latex: String.raw`\iiint_V (\vec{\nabla}\phi\cdot\vec{A})dV = \iint_{\partial V} \phi\vec{A}\cdot d\vec{S} - \iiint_V \phi(\vec{\nabla}\cdot\vec{A})dV`
                     },
                     {
                         title: 'זהות גרין הראשונה',
                         titleEn: 'Green\'s First Identity',
-                        latex: String.raw`\iint_{\partial V} f\vec{\nabla}g\cdot d\vec{S} = \iint_V \vec{\nabla}f\cdot\vec{\nabla}g dV + \iint_V f\nabla^2g dV`
+                        latex: String.raw`\iint_{\partial V} f\vec{\nabla}g\cdot d\vec{S} = \iiint_V \vec{\nabla}f\cdot\vec{\nabla}g dV + \iiint_V f\nabla^2g dV`
                     },
                     {
                         title: 'משפט ההסעה של ריינולדס',
                         titleEn: 'Reynolds Transport Theorem',
-                        latex: String.raw`\frac{d}{dt}\int_{V(t)}f(\vec{r},t)dV = \int_{V(t)}\partial_t f dV + \oint_{\partial V(t)}f\vec{u}\cdot d\vec{S}`
+                        latex: String.raw`\frac{d}{dt}\iiint_{V(t)}f(\vec{r},t)dV = \iiint_{V(t)}\partial_t f dV + \iint_{\partial V(t)}f\vec{u}\cdot d\vec{S}`
                     },
                     {
                         title: 'משוואות פואסון ולפלס',
@@ -712,9 +718,110 @@
                     {
                         title: 'משפט הלמהולץ',
                         titleEn: 'Helmholtz Theorem',
-                        description: 'כל שדה וקטורי רציף שדועך לאינסוף ניתן לפירוק יחיד לשדה משמר (אי-רוטציוני, $\vec{E}$) ושדה סולונואידי (חסר מקורות, $\vec{B}$):',
+                        description: 'כל שדה וקטורי רציף שדועך לאינסוף ניתן לפירוק יחיד לשדה משמר (אי-רוטציוני, E) ושדה סולונואידי (חסר מקורות, B):',
                         latex: String.raw`\begin{aligned} \vec{F} &= \vec{E} + \vec{B} \\ \vec{\nabla}\times\vec{E} &= 0 \\ \vec{\nabla}\cdot\vec{B} &= 0 \end{aligned}`
                     }
                 ]
             }
         ];
+
+        let activeTabId = systemsData[0].id;
+
+        // --- RENDER FUNCTIONS ---
+        
+        function renderTabs() {
+            const tabsContainer = document.getElementById('tabs-container');
+            tabsContainer.innerHTML = '';
+
+            systemsData.forEach(system => {
+                const isActive = system.id === activeTabId;
+                const button = document.createElement('button');
+                
+                // Styling active vs inactive tabs
+                button.className = `w-full text-right py-3 px-4 rounded-xl font-medium transition-all duration-200 flex flex-col gap-1 border text-right focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 ${
+                    isActive 
+                        ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/30' 
+                        : 'bg-white text-slate-600 hover:bg-slate-50 border-slate-200 hover:text-slate-900 hover:border-blue-300'
+                }`;
+                
+                button.innerHTML = `
+                    <span class="font-bold text-[15px]">${system.name}</span>
+                    <span class="text-xs font-mono ${isActive ? 'text-blue-200' : 'text-slate-400'}">${system.nameEn}</span>
+                `;
+                
+                button.onclick = () => {
+                    activeTabId = system.id;
+                    renderTabs(); 
+                    renderFormulas(); 
+                };
+                
+                tabsContainer.appendChild(button);
+            });
+        }
+
+        function renderFormulas() {
+            const container = document.getElementById('formulas-container');
+            container.innerHTML = '';
+            
+            const activeSystem = systemsData.find(s => s.id === activeTabId);
+            
+            activeSystem.formulas.forEach((formula, index) => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-5 flex flex-col hover:shadow-md transition-shadow relative overflow-hidden group';
+                
+                // Add a subtle accent line on the right
+                const accent = document.createElement('div');
+                accent.className = 'absolute right-0 top-0 bottom-0 w-1 bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity';
+                card.appendChild(accent);
+
+                const header = document.createElement('div');
+                header.className = 'flex justify-between items-center mb-6 border-b border-slate-100 pb-3';
+                header.innerHTML = `
+                    <div class="flex items-baseline gap-2">
+                        <h2 class="text-lg font-bold text-slate-800">${formula.title}</h2>
+                        <span class="text-sm text-slate-400 font-mono">${formula.titleEn}</span>
+                    </div>
+                `;
+
+                card.appendChild(header);
+
+                // Add description if exists
+                if (formula.description) {
+                    const desc = document.createElement('p');
+                    desc.className = 'text-sm text-slate-600 mb-4 px-1 leading-relaxed';
+                    desc.innerHTML = formula.description;
+                    card.appendChild(desc);
+                }
+
+                const mathContainer = document.createElement('div');
+                mathContainer.className = 'math-scroll flex-grow py-2 notranslate';
+                mathContainer.setAttribute('translate', 'no');
+                
+                // Using display math syntax for MathJax
+                mathContainer.innerHTML = `$$${formula.latex}$$`;
+                
+                card.appendChild(mathContainer);
+                container.appendChild(card);
+            });
+
+            // Initialize Lucide icons
+            lucide.createIcons();
+
+            // Tell MathJax to typeset the newly added elements
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                MathJax.typesetPromise([container]).catch(function (err) {
+                    console.error('MathJax error: ', err.message);
+                });
+            }
+        }
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            renderTabs();
+            renderFormulas();
+        });
+
+    </script>
+</body>
+</html>
