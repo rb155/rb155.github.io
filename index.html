@@ -24,7 +24,6 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* עיצוב מיוחד לצ'קבוקס שייראה כמו באפליקציות מובייל */
         input[type="checkbox"] {
             width: 1.5rem;
             height: 1.5rem;
@@ -51,9 +50,8 @@
         const LinkIcon = ({className}) => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>);
 
         function App() {
-          // ניהול משתמש ומצב תצוגה
           const [uid, setUid] = useState(localStorage.getItem('moodle_uid') || null);
-          const [view, setView] = useState(uid ? 'calendar' : 'landing'); // 'landing', 'register', 'calendar'
+          const [view, setView] = useState(uid ? 'calendar' : 'landing');
           
           const [lastUpdated, setLastUpdated] = useState(() => localStorage.getItem('moodle_last_updated') || null);
           const [events, setEvents] = useState(() => {
@@ -80,11 +78,8 @@
           const [loading, setLoading] = useState(false);
           const [error, setError] = useState(null);
           
-          // שדות מסך הרשמה
           const [registerUrl, setRegisterUrl] = useState('');
           const [registering, setRegistering] = useState(false);
-
-          // === קריאות שרת (API) עם UID ===
 
           const fetchCompletedTasks = async (currentUid) => {
             if (!currentUid) return;
@@ -108,7 +103,7 @@
               
               if (!response.ok) {
                 if (response.status === 401) {
-                  handleLogout(); // הטוקן פג תוקף, ננתק את המשתמש שיכניס שוב
+                  handleLogout();
                   throw new Error('החיבור פג תוקף. אנא הרשם מחדש.');
                 }
                 const errorData = await response.json().catch(() => ({}));
@@ -137,7 +132,6 @@
             }
           };
 
-          // טיפול בהרשמה
           const handleRegisterSubmit = async (e) => {
             e.preventDefault();
             if (!registerUrl.includes('moodle.tau.ac.il')) {
@@ -165,7 +159,6 @@
                 localStorage.setItem('moodle_uid', data.uid);
                 setUid(data.uid);
                 setView('calendar');
-                // נטען נתונים מיד
                 fetchEvents(data.uid);
                 fetchCompletedTasks(data.uid);
               }
@@ -185,10 +178,25 @@
             setRegisterUrl('');
           };
 
-          // טעינה ראשונית
           useEffect(() => {
             if (view === 'calendar' && uid) {
-              if (events.length === 0) fetchEvents(uid);
+              const savedLastUpdated = localStorage.getItem('moodle_last_updated');
+              const oneDayInMs = 24 * 60 * 60 * 1000;
+              let shouldAutoRefresh = false;
+
+              if (savedLastUpdated) {
+                const timeSinceUpdate = new Date() - new Date(savedLastUpdated);
+                if (timeSinceUpdate >= oneDayInMs) {
+                  shouldAutoRefresh = true;
+                }
+              } else {
+                shouldAutoRefresh = true;
+              }
+
+              if (events.length === 0 || shouldAutoRefresh) {
+                fetchEvents(uid);
+              }
+              
               fetchCompletedTasks(uid);
             }
           }, [view, uid]);
@@ -208,9 +216,6 @@
             return groups;
           }, [events]);
 
-          // === תצוגות (Views) ===
-
-          // מסך נחיתה
           const LandingView = () => (
             <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-b from-blue-50 to-white animate-fade-in text-center">
               <div className="bg-blue-600 p-4 rounded-full mb-6 shadow-lg shadow-blue-200">
@@ -218,10 +223,9 @@
               </div>
               <h1 className="text-3xl font-bold text-gray-900 mb-3 tracking-tight">רשימת מטלות Moodle</h1>
               <p className="text-gray-600 mb-8 text-lg leading-relaxed max-w-sm">
-                סנכרון אוטומטי של כל המטלות שלך ישר לטלפון.
+                סנכרון אוטומטי של כל המטלות, השיעורים והאירועים שלך ישר לטלפון. עקוב אחרי מה שביצעת בקלות.
               </p>
               
-              {/* תמונה מתוך GitHub (יש להעלות לשרת בשם landing-image.png) */}
               <div className="relative mb-10 w-full max-w-xs mx-auto">
                  <div className="absolute inset-0 bg-blue-100 rounded-2xl transform rotate-3"></div>
                  <img 
@@ -241,7 +245,6 @@
             </div>
           );
 
-          // מסך הרשמה (הוראות)
           const RegisterView = () => (
             <div className="min-h-screen bg-white animate-slide-up pb-10">
               <div className="bg-blue-600 px-6 pt-12 pb-6 text-white rounded-b-3xl shadow-md">
@@ -250,8 +253,6 @@
               </div>
 
               <div className="px-6 py-8 max-w-md mx-auto space-y-6">
-                
-                {/* צעדים */}
                 <div className="space-y-4">
                   <div className="flex gap-4 items-start">
                     <div className="bg-blue-100 text-blue-700 font-bold w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">1</div>
@@ -271,7 +272,6 @@
                     </div>
                   </div>
 
-                  {/* תמונת ההוראות מתוך GitHub (יש להעלות בשם instruction-image.png) */}
                   <img 
                     src="./instruction-image.png" 
                     alt="הוראות מודל" 
@@ -325,11 +325,8 @@
             </div>
           );
 
-          // מסך לוח השנה
           const CalendarView = () => (
             <div className="min-h-screen pb-20 animate-fade-in max-w-lg mx-auto">
-              
-              {/* Header מותאם מובייל (Sticky) */}
               <div className="sticky top-0 z-20 bg-white/90 backdrop-blur-md border-b border-gray-200 px-5 py-4 shadow-sm flex justify-between items-center">
                 <div>
                   <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
@@ -399,7 +396,6 @@
                               onChange={async () => {
                                 const newState = !isCompleted;
                                 
-                                // עדכון UI מיד למובייל מהיר
                                 const newCompleted = { ...completedIds };
                                 if (newState) newCompleted[ev.id] = true;
                                 else delete newCompleted[ev.id];
@@ -407,7 +403,6 @@
                                 setCompletedIds(newCompleted);
                                 localStorage.setItem('moodle_completed', JSON.stringify(newCompleted));
 
-                                // עדכון שרת
                                 try {
                                   await fetch('https://pages-api4.vercel.app/api/tasks', {
                                     method: 'POST',
@@ -464,7 +459,6 @@
             </div>
           );
 
-          // בחירת מסך להצגה
           if (view === 'landing') return <LandingView />;
           if (view === 'register') return <RegisterView />;
           return <CalendarView />;
